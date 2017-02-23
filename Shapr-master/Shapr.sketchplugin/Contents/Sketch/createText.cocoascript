@@ -1,0 +1,49 @@
+var onRun = function(context) {
+    var doc = context.document
+
+    function showAlertWindow() {
+        var alertWindow = COSAlertWindow.new()
+
+        // Set the icon fot the view
+        alertWindow.setIcon(NSImage.alloc().initByReferencingFile(context.plugin.urlForResourceNamed("create-text.png").path()));
+
+        alertWindow.setMessageText('Create text')
+
+        alertWindow.addTextLabelWithValue('Your text string')
+        alertWindow.addTextFieldWithValue('Lorem ipsum dolor')
+
+        alertWindow.addButtonWithTitle('OK')
+        alertWindow.addButtonWithTitle('Cancel')
+
+        if (alertWindow.runModal() == "1000") {
+
+            var textString = alertWindow.viewAtIndex(1).stringValue()
+
+            createText(textString);
+
+        } else {
+            return null
+        }
+    }
+
+    function createText(textString) {
+        var textLayer = MSTextLayer.new();
+
+        textLayer.setStringValue(textString)
+        textLayer.name = textString
+        textLayer.adjustFrameToFit()
+
+        //If there's no artboards create the rect in the page
+        if (doc.currentPage().artboards().count() < 1) {
+            doc.currentPage().addLayers([textLayer]);
+        } else {
+            doc.currentPage().currentArtboard().addLayers([textLayer]);
+        }
+
+        //Deselect all layers and select the new created
+        doc.currentPage().deselectAllLayers();
+        textLayer.setIsSelected(true);
+    }
+
+    showAlertWindow();
+};
